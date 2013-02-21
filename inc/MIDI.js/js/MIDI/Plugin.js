@@ -237,7 +237,9 @@ if (window.AudioContext || window.webkitAudioContext) (function () {
 		};
 		for (var instrument in MIDI.Soundfont) {
 			pending[instrument] = true;
-			console.log(urlList);
+			// limit octave range
+			bufferList = bufferList.slice(49,62);
+			urlList = urlList.slice(49,62);
 			for (var i = 0; i < urlList.length; i++) {
 				audioLoader(instrument, urlList, i, bufferList, oncomplete);
 			}

@@ -6,6 +6,9 @@
 	<META NAME="description" CONTENT="Simon says simulator. Enjoy a free memory game in your browser.">
 	<META NAME="keywords" CONTENT="game, color, memory, sound">
 
+	<meta name="viewport" content="width=device-width, maximum-scale=1.0, minimum-scale=1.0, initial-scale=1.0">
+  	<meta name="apple-mobile-web-app-capable" content="yes" />
+
 	<link rel="stylesheet" href="inc/style.css" type="text/css" media="screen" />
 
 	<!--[if IE 9]>
@@ -14,27 +17,13 @@
 
 	<link rel="shortcut icon" href="http://local.colrd/inc/css/images/media/favicon.png" />
 	<meta http-equiv="X-UA-Compatible" content="chrome=1">
-	<script type="text/javascript">
-	  var _gaq = _gaq || [];
-	  _gaq.push(['_setAccount', 'UA-51448-10']);
-	  _gaq.push(['_setDomainName', 'uxmonk.com']);
-	  _gaq.push(['_trackPageview']);
-	  (function() {
-	    var ga = document.createElement('script'); ga.type = 'text/javascript'; ga.async = true;
-	    ga.src = ('https:' == document.location.protocol ? 'https://ssl' : 'http://www') + '.google-analytics.com/ga.js';
-	    var s = document.getElementsByTagName('script')[0]; s.parentNode.insertBefore(ga, s);
-	  })();
-	</script>
 </head>
 <body>
-	<a href="http://uxmonk.com" id="backToMonk">&laquo; UX Monk</a>
 
 	<div id="intro">
 		<h1>Simon Says</h1>
-		<p class="subnote">Inspired by <a href="http://www.youtube.com/watch?v=KVzZVYtt64I">Simon</a>&trade;</p>
 		<div class="bodyContent">
 			<p>I'll play a melody, and you play it back. Ready?</p>
-			<div class="controls"></div>
 			<a href="#" id="start" class="button">Start!</a>
 			
 		</div>
@@ -56,7 +45,6 @@
 	</div>
 
 	<div id="ctrl">
-		<div class="topbar"></div>
 		<div id="score"><span class="title">Score:</span> <span id="scoreNumber">0</span></div>
 	</div>
 
