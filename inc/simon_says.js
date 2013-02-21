@@ -135,9 +135,7 @@
 				local_spacing;
 			PATTERN[PATTERN.length] = next;
 			SPACING = SPACING - 30;
-			SPACING = Math.max(SPACING, 30);
-			console.log(SPEED);
-			console.log(SPACING);
+			SPACING = Math.max(SPACING, 60);
 			(function play() { // recursive loop to play pattern
 				setTimeout( function() {
 					SELF.playSingle( INPUTS[ PATTERN[i] ]);
@@ -145,7 +143,7 @@
 					if( i < PATTERN.length ) {
 						play();
 					} else {
-						setTimeout( function() { LISTEN = true; }, SPEED + SPACING );
+						setTimeout( function() { LISTEN = true; }, SPEED );
 					}
 				},
 				SPEED + SPACING)

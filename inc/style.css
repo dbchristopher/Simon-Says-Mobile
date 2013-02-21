@@ -359,4 +359,7 @@ p.subnote {
 	body #endScreen {
 		width: 100%;
 	}
+	#endScreen .content {
+		width: 100%;
+	}
 }
