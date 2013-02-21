@@ -9,7 +9,7 @@
 	<meta name="viewport" content="width=device-width, maximum-scale=1.0, minimum-scale=1.0, initial-scale=1.0">
   	<meta name="apple-mobile-web-app-capable" content="yes" />
 
-	<link rel="stylesheet" href="inc/style.css" type="text/css" media="screen" />
+	<link rel="stylesheet" href="inc/style.css?02202013" type="text/css" media="screen" />
 
 	<!--[if IE 9]>
 		<link rel="stylesheet" type="text/css" href="http://local.colrd/inc/css/ie9.css?v=1327094253" media="screen">
@@ -20,12 +20,18 @@
 </head>
 <body>
 
+	<div id="followBar">
+		<a href="http://uxmonk.com">« Back To UX Monk</a>
+		<a href="https://twitter.com/uxmonk" class="twitter-follow-button" data-show-count="false">Follow @uxmonk</a>
+		<script>!function(d,s,id){var js,fjs=d.getElementsByTagName(s)[0];if(!d.getElementById(id)){js=d.createElement(s);js.id=id;js.src="//platform.twitter.com/widgets.js";fjs.parentNode.insertBefore(js,fjs);}}(document,"script","twitter-wjs");</script>
+	</div>
+
 	<div id="intro">
 		<h1>Simon Says</h1>
 		<div class="bodyContent">
 			<p>I'll play a melody, and you play it back. Ready?</p>
 			<a href="#" id="start" class="button">Start!</a>
-			
+			<p class="info visible-desktop">Controls: touch, click, or numeric keys 1 – 5.</p>
 		</div>
 		
 	</div>
@@ -39,9 +45,11 @@
 	</div>
 
 	<div id="endScreen">
-		<h2>GREAT WORK!</h2>
-		Final score: <span id="finalScore">0</span>
-		<a href="#" id="reset" class="button">Reset</a>
+		<div class="content">
+			<h2>GREAT WORK!</h2>
+			Final score: <span id="finalScore">0</span>
+			<a href="#" id="reset" class="button">Try Again</a>
+		</div>
 	</div>
 
 	<div id="ctrl">
@@ -62,6 +70,6 @@
 	<script src="inc/MIDI.js/inc/base64binary.js" type="text/javascript"></script>
 
 	
-	<script type="text/javascript" src="inc/global.js"></script
+	<script type="text/javascript" src="inc/global.js?02202013"></script
 </body>
 </html>

@@ -55,9 +55,6 @@ html { height: 100%; }
 a {
 	text-decoration: none;
 	color: #43A4FF;
-	background: #444;
-	background: rgba(150,150,150,.3);
-	padding: 3px 5px;
 }
 
 a:hover {
@@ -195,20 +192,25 @@ body #endScreen {
 	text-align:center;
 }
 
+#endScreen .content {
+	width: 63%;
+	margin: 0 auto;
+}
+
 body #endScreen.active {
 	display:block;
 }
 
 body #endScreen h2 {
 	font-weight: bold;
-	margin-top: .25em;
+	margin-top: 1em;
 	margin-bottom: .25em;
 	font-size: 3em;
 	line-height: 1em;
 }
 
 body .button {
-	margin-top: 1em;
+	margin-top: 2em;
 	font-weight:bold;
 	background: #255CFF;
 	border: 5px solid #43A4FF;
@@ -249,11 +251,11 @@ body .button:active {
 }
 
 h1 {
-	font-size: 3em;
+	font-size: 4em;
 	font-weight: bold;
 	line-height: 1em;
 	margin-bottom: .2em;
-	margin-top: .25em;
+	margin-top: .75em;
 }
 
 body #intro {
@@ -297,6 +299,7 @@ p.subnote {
 }
 
 .bodyContent {
+	width: 63%;
 	margin-left:auto;
 	margin-right: auto;
 	position:relative;
@@ -304,11 +307,56 @@ p.subnote {
 }
 
 .bodyContent .button {
-	margin-top:0;
 	text-align:center;
-	margin-bottom:1em;
+	margin-bottom:0.5em;
+	margin-top: 2em;
 }
 
-#reset.button {
-	font-size: inherit;
+.bodyContent .info {
+	font-size: .7em;
+	font-weight: bold;
+	text-transform: uppercase;
+	color: #999;
+}
+
+
+#followBar {
+	z-index: 900;
+	position: absolute;
+	width: 100%;
+	background: #222;
+	padding: 5px;
+	box-shadow: inset 0px -1px 4px #000;
+	font-size: .85em;
+}
+
+#followBar a {
+	display: inline-block;
+	padding: 5px;
+	position: relative;
+	top: -1px;
+}
+
+#followBar iframe {
+	float: right;
+	margin-top: 2px;
+	margin-right: 10px;
+}
+
+@media (max-width: 769px) {
+	.visible-desktop {
+		display: none;
+	}
+	h1 {
+		font-size: 3em;
+	}
+	.bodyContent {
+		width: 100%;
+	}
+	.bodyContent .button {
+		margin-top: 0;
+	}
+	body #endScreen {
+		width: 100%;
+	}
 }

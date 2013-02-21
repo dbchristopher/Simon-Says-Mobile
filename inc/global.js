@@ -21,10 +21,6 @@
 		this.init = function() {
 			var reset = document.getElementById('reset'),
 				start = document.getElementById('start');
-
-			// start gratii session
-			alert("gratiiStartSession('Simon Says');")
-
 			// connect color to sound
 			for (var i = 0; i < INPUTS.length; i++) {
 				Event.add(INPUTS[i], 'mousedown', function(event) { SELF.inputSingle(event.target); } );
@@ -111,18 +107,11 @@
 
  		this.fail = function () { // failure
  			var failPattern = [0,2,1,3,4],
- 				i = 0,
- 				gratiiScore = SCORE * 2;
-
- 			// end gratii session
-
- 			alert("exitGame(gratiiScore);");
+ 				i = 0;
 
  			// default simon says end game
- 			/* 
  			document.getElementById('endScreen').className = 'active';
  			document.getElementById('finalScore').innerHTML = SCORE;
- 			*/
 
  			setTimeout(function() {
 	 			(function play() { // recursive loop to play fail music
