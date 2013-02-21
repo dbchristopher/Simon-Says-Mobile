@@ -8,14 +8,14 @@
 	var Simon = function() {
 		var SELF = this,
 			INPUTS = document.getElementById('content').getElementsByTagName('a'),
-			SPEED = 250,
-			SPACING = 200,
+			SPEED,
+			SPACING,
+			SCORE,
 			PATTERN = [], // PATTERN TO PLAY
 			NOTES = [70, 74, 75, 77, 82],
 			LISTEN = true, // LINK EACH COLOR TO A NOTE
 			RESPONSE = [], // USER PLAYBACK
 			CTRL = document.getElementById('ctrl'),
-			SCORE = 0,
 			SCOREKEEPER = document.getElementById('scoreNumber'); // CONTROL BAR
 
 		this.init = function() {
@@ -56,6 +56,8 @@
 			PATTERN = [];
 			SCORE = 0;
 			RESPONSE = [];
+			SPACING = 360;
+			SPEED = 250;
 		}
 
 		this.inputSingle = function(el) {
@@ -129,8 +131,13 @@
 
 		this.playPattern = function() { // playback a pattern
 			var next = Math.random() * INPUTS.length >> 0,
-				i = 0;
+				i = 0,
+				local_spacing;
 			PATTERN[PATTERN.length] = next;
+			SPACING = SPACING - 30;
+			SPACING = Math.max(SPACING, 30);
+			console.log(SPEED);
+			console.log(SPACING);
 			(function play() { // recursive loop to play pattern
 				setTimeout( function() {
 					SELF.playSingle( INPUTS[ PATTERN[i] ]);
