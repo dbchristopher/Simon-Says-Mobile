@@ -237,6 +237,7 @@ if (window.AudioContext || window.webkitAudioContext) (function () {
 		};
 		for (var instrument in MIDI.Soundfont) {
 			pending[instrument] = true;
+			console.log(urlList);
 			for (var i = 0; i < urlList.length; i++) {
 				audioLoader(instrument, urlList, i, bufferList, oncomplete);
 			}
