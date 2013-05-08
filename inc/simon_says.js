@@ -160,7 +160,9 @@
 			MIDI.loader.stop();
 		}
 	});
-
-	MIDI.loader = new widgets.Loader;
+	
+	Event.add("body", "ready", function() {
+		MIDI.loader = new widgets.Loader("Loading Simon Says");
+	});
 
 })();
