@@ -1,5 +1,8 @@
 
 (function() { "use strict";
+	// disable mobile safari "bounce"
+	document.addEventListener('touchmove', function(e){ e.preventDefault(); }, false);
+
 	// REMOVE BLANK CHARS FROM BEGINNING AND END OF STRING
 	String.prototype.trim = function () {
 		return this.replace(/^\s*(\S*(\s+\S+)*)\s*$/, "$1");
