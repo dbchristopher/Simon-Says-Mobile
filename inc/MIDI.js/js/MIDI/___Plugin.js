@@ -98,12 +98,12 @@ var setPlugin = function(root) {
 
 	root.connect = function (conf) {
 		setPlugin(root);
-		navigator.requestMIDIAccess(function (access) {
+        navigator.requestMIDIAccess().then(function (access) {
 			plugin = access;
-			output = plugin.getOutput(0);
+			output = plugin.outputs()[0];
 			if (conf.callback) conf.callback();
 		}, function (err) { // well at least we tried!
-			if (window.webkitAudioContext) { // Chrome
+			if (window.AudioContext || window.webkitAudioContext) { // Chrome
 				conf.api = "webaudio";
 			} else if (window.Audio) { // Firefox
 				conf.api = "audiotag";
@@ -199,15 +199,6 @@ if (window.AudioContext || window.webkitAudioContext) (function () {
 			source.start(delay || 0);
 		}
 		return source;
-		/*
-		var gainNode = ctx.createGainNode();
-		var value = (velocity / 127) * (masterVolume / 127) * 2 - 1;
-		gainNode.connect(ctx.destination);
-		gainNode.gain.value = Math.max(-1, value);
-		source.connect(gainNode);
-		source.noteOn(delay || 0);
-		return source;
-		*/
 	};
 
 	root.noteOff = function (channel, note, delay) {
@@ -215,13 +206,21 @@ if (window.AudioContext || window.webkitAudioContext) (function () {
 		if (delay < ctx.currentTime) delay += ctx.currentTime;
 		var source = sources[channel + "" + note];
 		if (!source) return;
-		// @Miranet: "the values of 0.2 and 0.3 could ofcourse be used as 
-		// a 'release' parameter for ADSR like time settings."
-		// add { "metadata": { release: 0.3 } } to soundfont files
-		source.gain.linearRampToValueAtTime(1, delay);
-		source.gain.linearRampToValueAtTime(0, delay + 0.2);
-		source.noteOff(delay + 0.3);
-		return source;
+		if (source.gainNode) {
+			// @Miranet: "the values of 0.2 and 0.3 could ofcourse be used as 
+			// a 'release' parameter for ADSR like time settings."
+			// add { "metadata": { release: 0.3 } } to soundfont files
+			var gain = source.gainNode.gain;
+			gain.linearRampToValueAtTime(gain.value, delay);
+			gain.linearRampToValueAtTime(-1, delay + 0.2);
+		}
+		if (source.noteOff) { // old api
+			source.noteOff(delay + 0.3);
+		} else {
+			source.stop(delay + 0.3);
+		}
+		///
+		delete sources[channel + "" + note];
 	};
 
 	root.chordOn = function (channel, chord, velocity, delay) {
@@ -240,6 +239,20 @@ if (window.AudioContext || window.webkitAudioContext) (function () {
 		return ret;
 	};
 
+    root.stopAllNotes = function () {
+        for (var source in sources) {
+            var delay = 0;
+            if (delay < ctx.currentTime) delay += ctx.currentTime;
+            // @Miranet: "the values of 0.2 and 0.3 could ofcourse be used as
+            // a 'release' parameter for ADSR like time settings."
+            // add { "metadata": { release: 0.3 } } to soundfont files
+            sources[source].gain.linearRampToValueAtTime(1, delay);
+            sources[source].gain.linearRampToValueAtTime(0, delay + 0.2);
+            sources[source].noteOff(delay + 0.3);
+            delete sources[source];
+        }
+    };
+
 	root.connect = function (conf) {
 		setPlugin(root);
 		//
@@ -257,9 +270,6 @@ if (window.AudioContext || window.webkitAudioContext) (function () {
 		};
 		for (var instrument in MIDI.Soundfont) {
 			pending[instrument] = true;
-			// limit octave range
-			bufferList = bufferList.slice(49,62);
-			urlList = urlList.slice(49,62);
 			for (var i = 0; i < urlList.length; i++) {
 				audioLoader(instrument, urlList, i, bufferList, oncomplete);
 			}
@@ -284,6 +294,7 @@ if (window.Audio) (function () {
 	var volume = 127; // floating point 
 	var channel_nid = -1; // current channel
 	var channels = []; // the audio channels
+	var channelInstrumentNoteIds = []; // instrumentId + noteId that is currently playing in each 'channel', for routing noteOff/chordOff calls
 	var notes = {}; // the piano keys
 	for (var nid = 0; nid < 12; nid++) {
 		channels[nid] = new Audio();
@@ -292,16 +303,37 @@ if (window.Audio) (function () {
 	var playChannel = function (channel, note) {
 		if (!MIDI.channels[channel]) return;
 		var instrument = MIDI.channels[channel].instrument;
-		var id = MIDI.GeneralMIDI.byId[instrument].id;
+		var instrumentId = MIDI.GeneralMIDI.byId[instrument].id;
 		var note = notes[note];
 		if (!note) return;
+		var instrumentNoteId = instrumentId + "" + note.id;
 		var nid = (channel_nid + 1) % channels.length;
-		var time = (new Date()).getTime();
 		var audio = channels[nid];
-		audio.src = MIDI.Soundfont[id][note.id];
+		channelInstrumentNoteIds[ nid ] = instrumentNoteId;
+		audio.src = MIDI.Soundfont[instrumentId][note.id];
 		audio.volume = volume / 127;
 		audio.play();
 		channel_nid = nid;
+	};
+
+	var stopChannel = function (channel, note) {
+		if (!MIDI.channels[channel]) return;
+		var instrument = MIDI.channels[channel].instrument;
+		var instrumentId = MIDI.GeneralMIDI.byId[instrument].id;
+		var note = notes[note];
+		if (!note) return;
+		var instrumentNoteId = instrumentId + "" + note.id;
+
+		for(var i=0;i<channels.length;i++){
+			var nid = (i + channel_nid + 1) % channels.length;
+			var cId = channelInstrumentNoteIds[nid];
+
+			if(cId && cId == instrumentNoteId){
+				channels[nid].pause();
+				channelInstrumentNoteIds[nid] = null;
+				return;
+			}
+		}
 	};
 
 	root.programChange = function (channel, program) {
@@ -325,9 +357,15 @@ if (window.Audio) (function () {
 	};
 	
 	root.noteOff = function (channel, note, delay) {
-		setTimeout(function() {
-			channels[channel].pause();
-		}, delay * 1000)
+		var id = note2id[note];
+		if (!notes[id]) return;
+		if (delay) {
+			return setTimeout(function() {
+				stopChannel(channel, id);
+			}, delay * 1000)
+		} else {
+			stopChannel(channel, id);
+		}
 	};
 	
 	root.chordOn = function (channel, chord, velocity, delay) {
@@ -352,10 +390,10 @@ if (window.Audio) (function () {
 			if (!notes[id]) continue;
 			if (delay) {
 				return window.setTimeout(function () {
-					channels[channel].pause();
+					stopChannel(channel, id);
 				}, delay * 1000);
 			} else {
-				channels[channel].pause();
+				stopChannel(channel, id);
 			}
 		}
 	};
@@ -367,7 +405,6 @@ if (window.Audio) (function () {
 	};
 	
 	root.connect = function (conf) {
-		var loading = {};
 		for (var key in MIDI.keyToNote) {
 			note2id[MIDI.keyToNote[key]] = key;
 			notes[key] = {
@@ -444,10 +481,10 @@ if (window.Audio) (function () {
 
 	};
 
-	root.connect = function (conf) {
+	root.connect = function (instruments, conf) {
 		soundManager.flashVersion = 9;
 		soundManager.useHTML5Audio = true;
-		soundManager.url = '../inc/SoundManager2/swf/';
+		soundManager.url = conf.soundManagerSwfUrl || '../inc/SoundManager2/swf/';
 		soundManager.useHighPerformance = true;
 		soundManager.wmode = 'transparent';
 		soundManager.flashPollingInterval = 1;
@@ -464,15 +501,19 @@ if (window.Audio) (function () {
 					onload: onload
 				});			
 			};
-			for (var instrument in MIDI.Soundfont) {
-				var loaded = [];
+			var loaded = [];
+			var samplesPerInstrument = 88;
+			var samplesToLoad = instruments.length * samplesPerInstrument;
+				
+			for (var i = 0; i < instruments.length; i++) {
+				var instrument = instruments[i];
 				var onload = function () {
 					loaded.push(this.sID);
 					if (typeof (MIDI.loader) === "undefined") return;
 					MIDI.loader.update(null, "Processing: " + this.sID);
 				};
-				for (var i = 0; i < 88; i++) {
-					var id = noteReverse[i + 21];
+				for (var j = 0; j < samplesPerInstrument; j++) {
+					var id = noteReverse[j + 21];
 					createBuffer(instrument, id, onload);
 				}
 			}
@@ -480,7 +521,7 @@ if (window.Audio) (function () {
 			setPlugin(root);
 			//
 			var interval = window.setInterval(function () {
-				if (loaded.length !== 88) return;
+				if (loaded.length < samplesToLoad) return;
 				window.clearInterval(interval);
 				if (conf.callback) conf.callback();
 			}, 25);
